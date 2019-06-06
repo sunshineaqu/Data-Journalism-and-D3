@@ -26,44 +26,47 @@ var chartGroup = svg.append("g")
   .attr("transform", `translate(${chartMargin.left}, ${chartMargin.top})`);
 
 // Load data from hours-of-tv-watched.csv
-d3.csv("assets/data/data.csv", function(error, acsData) {
+d3.csv("assets/data/data.csv", function(error, healthData) {
 
   // Log an error if one exists
   if (error) return console.warn(error);
 
   // Print the tvData
-  console.log(acsData);
+  // console.log(healthData);
 
   // Cast the hours value to a number for each piece of tvData
-  acsData.forEach(function(data) {
+  healthData.forEach(function(data) {
     data.poverty = +data.poverty;
     data.healthcare = +data.healthcare
   });
 
   var xLinearScale = d3.scaleLinear()
-    .domain([d3.max(acsData, d => d.poverty)])
+    .domain([d3.min(healthData, d => +d.poverty * 0.95), 
+      d3.max(healthData, d => +d.poverty * 1.05)])
     .range([0, width]);
 
   var yLinearScale = d3.scaleLinear()
-    .domain([0, d3.max(acsData, d => d.healthcare)])
+    .domain([d3.min(healthData, d => +d.healthcare *0.95), 
+      d3.max(healthData, d => d.healthcare *1.05)])
     .range([height, 0]);
   
+  var bottomAxis = d3.axisBottom(xLinearScale);
+  var leftAxis = d3.axisLeft(yLinearScale)
+  
 
-  // @TODO
-  // Create a 'barWidth' variable so that the bar chart spans the entire chartWidth.
-  var barWidth = (chartWidth - (barSpacing * (tvData.length - 1))) / tvData.length;
 
   // Create code to build the bar chart using the tvData.
-  var circlesGroup = chartGroup.selectAll("#scatter")
-    .data(acsData)
+  chartGroup.selectAll("#scatter")
+    .data(healthData)
     .enter()
     .append("circle")
     .attr("cx", d => xLinearScale(d.poverty)
     .attr("cy", d => yLinearScale(d.healthcare))
-    .attr("r", 20)
+    .attr("r", 15)
     .attr("fill", "blue")
     .attr("opacity", ".5")
     )
+ 
 
 });
 
